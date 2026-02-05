@@ -1,3 +1,5 @@
+
+
 let ecra = 0;
 
 function setup() {
@@ -68,6 +70,7 @@ function mousePressed() {
     if (mouseX > width / 2 - 125 && mouseX < width / 2 + 125 &&
       mouseY > height / 2 - 15 && mouseY < height / 2 + 35) {
       ecra = 1;
+      
     }
 
     if (mouseX > width / 2 - 125 && mouseX < width / 2 + 125 &&
