@@ -1,9 +1,3 @@
-// rhythm game v2.4, adds a song end menu, and fixes song sync issues. 
-
-// notes for stuff to add. 
-// make the arrows spread out a bit more, and color the 4 main arrows like the notes, though maybe a bit lighter/darker to differentiate?
-// use a really simple tonal song that only generates the exact notes intended, as a tutorial of sorts that can teach the user how to play if needed.
-
 const gameState = {
   MENU: 0,
   GAME: 1,
@@ -17,25 +11,25 @@ let fft;
 let lastNoteTime = 0;
 let gameStartTime;
 let score = 0;
-let activeArrows = [false, false, false, false]; 
+let activeArrows = [false, false, false, false];
 let noteTravelTime;
 let songDuration;
 
 function preload() {
-  song = loadSound("vegyn.mp3", () => {
-    songDuration = song.duration(); // get the duration of the song after it has been loaded
+  song = loadSound("593910__szegvari__fish-cinematic-soundtrack-background-music.mp3", () => {
+    songDuration = song.duration();
     song.onended(songEnded)
   });
-  img=loadImage("vegyn.jpg");
-} 
+  img = loadImage("Design sem nome.png");
+}
 
 function setup() {
-  createCanvas(500, 850);
+  createCanvas(1280, 800);
   textAlign(CENTER, CENTER);
   rectMode(CENTER);
-  textSize(32); // Move textSize() here
+  textSize(32);
   fft = new p5.FFT(0.8, 32);
-  noteTravelTime = (height - 100) / 5; // 5 is the speed of the notes
+  noteTravelTime = (height - 100) / 5;
 }
 
 function draw() {
@@ -64,13 +58,13 @@ function drawEndSequence() {
   fill(255);
   textSize(32);
   textStyle(BOLD);
-  text("harshities and niceness", width / 2, height / 2 - 300);
-  image(img, width/2-125, height/2-280, 250, 250);
+  text("RITMO DO MEDO", width / 2, height / 2 - 300);
+  image(img, width / 2 - 125, height / 2 - 280, 250, 250);
   textStyle(NORMAL);
-  text("by Vegyn", width / 2, height / 2 - 10);
+  text("", width / 2, height / 2 - 10);
   text("Score: " + score, width / 2, height / 2 + 45);
   textSize(24);
-  text("Press ENTER to go back to Menu", width / 2, height / 2 + 100);
+  text("clica ENTER para retornar ao menu", width / 2, height / 2 + 100);
 }
 
 function songEnded() {
@@ -79,6 +73,10 @@ function songEnded() {
 
 function keyPressed() {
   let arrowIndex;
+
+  if (keyCode === ESCAPE) {
+    window.location.href = "index.html";
+  }
 
   if (keyCode === LEFT_ARROW) {
     arrowIndex = 0;
@@ -115,7 +113,6 @@ function keyPressed() {
       notes[hitNoteIndex].pressed = true;
       notes.splice(hitNoteIndex, 1);
     } else if (arrowIndex !== undefined && (hitNoteIndex === -1 || (hitNoteIndex !== -1 && notes[hitNoteIndex].pressed))) {
-      // Deduct points or handle misses as needed
       score -= 50;
     }
   }
@@ -128,19 +125,13 @@ function drawScore() {
   text(`Score: ${score}`, width / 2, 40);
 }
 
-function drawPercentage() { // function to draw the percentage text
-  fill(255);
-  textSize(24);
-  let percentage = map(song.currentTime(), 0, songDuration, 0, 100); // map the current time to a percentage
-  percentage = percentage.toFixed(0); // round the percentage to the nearest integer
-  text(`${percentage}%`, width / 2, height - 25); // display the percentage text centered at the bottom of the canvas
-}
+
 
 function drawGame() {
   background(0);
   drawArrows();
   drawScore();
-  drawPercentage();
+
   fft.analyze();
 
   generateNotes();
@@ -151,7 +142,6 @@ function drawGame() {
     note.display();
 
     if (note.missed()) {
-      // Deduct points or handle misses as needed
       score -= 50;
       note.pressed = true;
     }
@@ -172,25 +162,25 @@ function generateNotes() {
     let lowMid = fft.getEnergy("lowMid");
     let highMid = fft.getEnergy("highMid");
 
-    let direction = round(random(0, 3)); // randomly choose a direction
+    let direction = round(random(0, 3));
 
-    switch (direction) { // create a new note in the chosen direction
-      case 0: // left
-        if (bass > 230) { // adjust the threshold for the left arrow
+    switch (direction) {
+      case 0:
+        if (bass > 230) {
           notes.push(new Arrow("LEFT"));
         }
         break;
-      case 1: // up
-        if (mid > 225) { // adjust the threshold for the up arrow
+      case 1:
+        if (mid > 225) {
           notes.push(new Arrow("UP"));
         }
         break;
-      case 2: // down
+      case 2:
         if (lowMid > 100 && treble > 110) {
           notes.push(new Arrow("DOWN"));
         }
         break;
-      case 3: // right
+      case 3:
         if (highMid > 120 && bass > 100) {
           notes.push(new Arrow("RIGHT"));
         }
@@ -223,14 +213,13 @@ function drawArrow(x, y, rotation, colorVal) {
     rect(x, y, 25, 55);
     triangle(x - 35, y - 18, x, y - 53, x + 35, y - 18);
     rectMode(CENTER);
-    noStroke(); 
+    noStroke();
     fill(255);
     rect(x, y, 20, 50);
     triangle(x - 30, y - 20, x, y - 50, x + 30, y - 20);
-    // creates inner black arrow that is consistent between arrows
     fill(255);
     rect(x, y - 5, 8, 50);
-    triangle(x - 15, y - 25, x, y - 40, x + 15, y - 25); 
+    triangle(x - 15, y - 25, x, y - 40, x + 15, y - 25);
   }
   // down
   else if (rotation == 2) {
@@ -238,14 +227,13 @@ function drawArrow(x, y, rotation, colorVal) {
     rect(x, y, 25, 55);
     triangle(x - 35, y + 18, x, y + 53, x + 35, y + 18);
     rectMode(CENTER);
-    noStroke(); 
+    noStroke();
     fill(255);
     rect(x, y, 20, 50);
     triangle(x - 30, y + 20, x, y + 50, x + 30, y + 20);
-    // creates inner black arrow that is consistent between arrows
     fill(255);
     rect(x, y + 5, 8, 50);
-    triangle(x - 15, y + 25, x, y + 40, x + 15, y + 25); 
+    triangle(x - 15, y + 25, x, y + 40, x + 15, y + 25);
   }
   // right
   else if (rotation == 3) {
@@ -257,7 +245,6 @@ function drawArrow(x, y, rotation, colorVal) {
     fill(255);
     rect(x, y, 50, 20);
     triangle(x + 52, y, x + 22, y - 29, x + 22, y + 29);
-    // creates inner black arrow
     fill(255);
     rect(x + 5, y, 50, 8)
     triangle(x + 42, y, x + 28, y + 15, x + 28, y - 15);
@@ -276,7 +263,7 @@ function drawArrows() {
   }
 }
 
-class Arrow { // class for the arrows that fall down the screen
+class Arrow {
   constructor(direction) {
     this.direction = direction;
     this.y = 0;
@@ -337,11 +324,11 @@ class Arrow { // class for the arrows that fall down the screen
     drawArrow(0, 0, rotation, colorVal);
     pop();
   }
-  
+
   offScreen() {
     return this.y > height;
   }
-  
+
   removeIfHit() {
     if (this.y >= height - 150 && this.y <= height - 50 && activeArrows[this.arrowIndex] && !this.pressed) {
       this.pressed = true;
@@ -373,3 +360,4 @@ function keyReleased() {
     activeArrows[arrowIndex] = false;
   }
 }
+

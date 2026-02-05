@@ -21,41 +21,41 @@ function draw() {
 
 function desenharMenu() {
 
-//fundo2
-fill(0, 0, 0)
-rect(width / 2 - 560, height / 2 - 320, 1120, 640);
+  //fundo2
+  fill(0, 0, 0)
+  rect(width / 2 - 640, height / 2 - 400, 1280, 800);
 
-//rect linha
-fill(255)
-rect(width / 2 - 200, height / 2 - 212, 400, 424);
+  //rect linha
+  fill(255)
+  rect(width / 2 - 200, height / 2 - 212, 400, 424);
 
-//rect int
-fill(0)
-rect(width / 2 - 195, height / 2 - 207, 390, 414);
+  //rect int
+  fill(0)
+  rect(width / 2 - 195, height / 2 - 207, 390, 414);
 
-//1 jogador
-fill(255)
-rect(width / 2 - 125, height / 2 - 15, 250, 50);
-//Text 1
-fill(0)
-textFont('Verdana');
-textSize(20);
-text('1 Jogador', width / 2 - 50, height / 2 + 18);
+  //1 jogador
+  fill(255)
+  rect(width / 2 - 125, height / 2 - 15, 250, 50);
+  //Text 1
+  fill(0)
+  textFont('Verdana');
+  textSize(20);
+  text('1 Jogador', width / 2 - 50, height / 2 + 18);
 
-//2 jogador
-fill(255)
-rect(width / 2 - 125, height / 2 + 65, 250, 50);
-//Text 2
-fill(0)
-textFont('Verdana');
-textSize(20);
-text('2 Jogadores', width / 2 - 65, height / 2 + 98);
+  //2 jogador
+  fill(255)
+  rect(width / 2 - 125, height / 2 + 65, 250, 50);
+  //Text 2
+  fill(0)
+  textFont('Verdana');
+  textSize(20);
+  text('2 Jogadores', width / 2 - 65, height / 2 + 98);
 
-//Tit
-fill(255)
-textFont('Verdana');
-textSize(35);
-text('RITMO DO MEDO', width / 2 - 148, height / 2 - 100);
+  //Tit
+  fill(255)
+  textFont('Verdana');
+  textSize(35);
+  text('RITMO DO MEDO', width / 2 - 148, height / 2 - 100);
 
 }
 
@@ -70,7 +70,7 @@ function mousePressed() {
     if (mouseX > width / 2 - 125 && mouseX < width / 2 + 125 &&
       mouseY > height / 2 - 15 && mouseY < height / 2 + 35) {
       ecra = 1;
-      
+      window.location.href = "j1.html";
     }
 
     if (mouseX > width / 2 - 125 && mouseX < width / 2 + 125 &&
