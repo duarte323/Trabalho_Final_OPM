@@ -50,7 +50,7 @@ function drawMenu() {
   background(0);
   textSize(32);
   fill(255);
-  text("Press ENTER to start the game", width / 2, height / 2);
+  text("Clica ENTER para começar", width / 2, height / 2);
 }
 
 function drawEndSequence() {
@@ -64,7 +64,7 @@ function drawEndSequence() {
   text("", width / 2, height / 2 - 10);
   text("Score: " + score, width / 2, height / 2 + 45);
   textSize(24);
-  text("clica ENTER para voltar ao menu", width / 2, height / 2 + 100);
+  text("Clica ENTER para voltar ao menu", width / 2, height / 2 + 100);
 }
 
 function songEnded() {
