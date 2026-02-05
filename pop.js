@@ -64,7 +64,7 @@ function drawEndSequence() {
   text("", width / 2, height / 2 - 10);
   text("Score: " + score, width / 2, height / 2 + 45);
   textSize(24);
-  text("clica ENTER para retornar ao menu", width / 2, height / 2 + 100);
+  text("clica ENTER para voltar ao menu", width / 2, height / 2 + 100);
 }
 
 function songEnded() {
