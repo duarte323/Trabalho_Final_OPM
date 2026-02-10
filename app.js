@@ -75,6 +75,7 @@ function mousePressed() {
 
     if (mouseX > width / 2 - 125 && mouseX < width / 2 + 125 &&
       mouseY > height / 2 + 65 && mouseY < height / 2 + 115) {
+      window.location.href = "j2.html";
       ecra = 2;
     }
   }

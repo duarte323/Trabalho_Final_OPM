@@ -1,44 +1,42 @@
-const gameState = {
-  MENU: 0,
-  GAME: 1,
-  END: 2,
-};
-
+const gameState = { MENU: 0, GAME: 1, END: 2 };
 let state = gameState.MENU;
-let song;
+let song, fft, img;
 let notes = [];
-let fft;
+let particles = [];
 let lastNoteTime = 0;
 let gameStartTime;
 let score = 0;
 let activeArrows = [false, false, false, false];
-let noteTravelTime;
-let songDuration;
+
+
+const gameLeftMargin = 150;
+const arrowSpacing = 90;
 
 function preload() {
-  song = loadSound("593910__szegvari__fish-cinematic-soundtrack-background-music.mp3", () => {
-    songDuration = song.duration();
-    song.onended(songEnded)
-  });
+
+  song = loadSound("kemadj.mp3");
   img = loadImage("Design sem nome.png");
 }
 
 function setup() {
   createCanvas(1280, 800);
-  textAlign(CENTER, CENTER);
   rectMode(CENTER);
-  textSize(32);
-  fft = new p5.FFT(0.8, 32);
-  noteTravelTime = (height - 100) / 5;
+  fft = new p5.FFT(0.8, 64);
 }
 
 function draw() {
+  background(0);
+
   switch (state) {
     case gameState.MENU:
       drawMenu();
       break;
     case gameState.GAME:
       drawGame();
+
+      if (song.isLoaded() && !song.isPlaying() && millis() - gameStartTime > 5000) {
+        state = gameState.END;
+      }
       break;
     case gameState.END:
       drawEndSequence();
@@ -46,318 +44,187 @@ function draw() {
   }
 }
 
+//tela ini
 function drawMenu() {
-  background(0);
-  textSize(32);
   fill(255);
-  text("Clica ENTER para começar", width / 2, height / 2);
+  noStroke();
+  textAlign(CENTER, CENTER);
+  textSize(60);
+  text("RITMO DO MEDO", width / 2, height / 2 - 50);
+  textSize(35);
+  text("Clica ENTER para começar", width / 2, height / 2 + 50);
+  textSize(13);
+  text("Clica ESC para voltar ao menu", width / 2, height / 2 + 100);
 }
 
-function drawEndSequence() {
-  background(0);
+function drawGame() {
+  drawTargetZone();
+  drawScore();
+
+  fft.analyze();
+  generateNotes();
+
+  //-pont
+  for (let i = notes.length - 1; i >= 0; i--) {
+    notes[i].update();
+    notes[i].display();
+
+    if (notes[i].missed()) {
+      score -= 50;
+      notes.splice(i, 1);
+    } else if (notes[i].pressed) {
+      notes.splice(i, 1);
+    }
+  }
+
+  //partic
+  for (let i = particles.length - 1; i >= 0; i--) {
+    particles[i].update();
+    particles[i].display();
+    if (particles[i].alpha <= 0) particles.splice(i, 1);
+  }
+}
+
+//gerar nots
+function generateNotes() {
+  let currentTime = millis() - gameStartTime;
+  if (currentTime - lastNoteTime >= 250) {
+    if (fft.getEnergy("bass") > 140 || fft.getEnergy("mid") > 140) {
+      notes.push(new Arrow(floor(random(0, 4))));
+      lastNoteTime = currentTime;
+    }
+  }
+}
+
+//setas
+function drawArrow(x, y, type = 255) {
+  push();
+  translate(x, y);
   fill(255);
+  noStroke();
+  if (type === 1) rotate(HALF_PI);
+  if (type === 2) rotate(-HALF_PI);
+  if (type === 3) rotate(PI);
+  rect(10, 0, 40, 20);
+  triangle(-30, 0, 10, -30, 10, 30);
+  pop();
+}
+
+function drawTargetZone() {
+  const yPos = height - 100;
+  for (let i = 0; i < 4; i++) {
+    let x = gameLeftMargin + i * arrowSpacing;
+    let opacity = activeArrows[i] ? 255 : 80;
+    noFill();
+    stroke(255, opacity);
+    strokeWeight(2);
+    rect(x, yPos, 80, 80, 10);
+    drawArrow(x, yPos, i, opacity);
+  }
+}
+
+//score
+function drawScore() {
+  push();
+  fill(255);
+  noStroke();
+  textAlign(LEFT);
   textSize(32);
-  textStyle(BOLD);
-  text("RITMO DO MEDO", width / 2, height / 2 - 300);
-  image(img, width / 2 - 125, height / 2 - 280, 250, 250);
-  textStyle(NORMAL);
-  text("", width / 2, height / 2 - 10);
-  text("Score: " + score, width / 2, height / 2 + 45);
-  textSize(24);
+  text(`Score: ${score}`, gameLeftMargin - 40, 50);
+  pop();
+}
+
+//tela fin
+function drawEndSequence() {
+  fill(255);
+  noStroke();
+  textAlign(CENTER, CENTER);
+  textSize(42);
+  text("FIM DE JOGO", width / 2, height / 2 - 50);
+  textSize(32);
+  text("Score Final: " + score, width / 2, height / 2 + 20);
+  textSize(20);
   text("Clica ENTER para voltar ao menu", width / 2, height / 2 + 100);
 }
 
-function songEnded() {
-  state = gameState.END;
-}
-
+//tecs
 function keyPressed() {
-  let arrowIndex;
+  if (keyCode === ENTER) {
+    if (state === gameState.MENU) {
+      state = gameState.GAME;
+      score = 0;
+      notes = [];
+      song.play();
+      gameStartTime = millis();
+    } else if (state === gameState.END) {
+      window.location.href = "index.html";
+    }
+  }
 
   if (keyCode === ESCAPE) {
     window.location.href = "index.html";
   }
 
-  if (keyCode === LEFT_ARROW) {
-    arrowIndex = 0;
-  } else if (keyCode === UP_ARROW) {
-    arrowIndex = 1;
-  } else if (keyCode === DOWN_ARROW) {
-    arrowIndex = 2;
-  } else if (keyCode === RIGHT_ARROW) {
-    arrowIndex = 3;
-  }
 
-  if (arrowIndex !== undefined) {
-    activeArrows[arrowIndex] = true;
-  }
+  if (state === gameState.GAME) {
+    let idx = -1;
+    if (keyCode === LEFT_ARROW) idx = 0;
+    if (keyCode === UP_ARROW) idx = 1;
+    if (keyCode === DOWN_ARROW) idx = 2;
+    if (keyCode === RIGHT_ARROW) idx = 3;
 
-  if (keyCode === 13) {
-    if (state === gameState.MENU) {
-      state = gameState.GAME;
-      song.play();
-      gameStartTime = millis();
-    } else if (state === gameState.GAME) {
-      song.stop();
-      state = gameState.MENU;
-    } else if (state === gameState.END) {
-      window.location.href = '../index.html';
+    if (idx !== -1) {
+      activeArrows[idx] = true;
+      checkHit(idx);
     }
-  } else if (state === gameState.GAME) {
-    const hitNoteIndex = notes.findIndex(note => {
-      return note.arrowIndex === arrowIndex && note.y >= height - 150 && note.y <= height - 50;
-    });
+  }
+}
 
-    if (hitNoteIndex !== -1 && !notes[hitNoteIndex].pressed) {
+function keyReleased() {
+  if (keyCode === LEFT_ARROW) activeArrows[0] = false;
+  if (keyCode === UP_ARROW) activeArrows[1] = false;
+  if (keyCode === DOWN_ARROW) activeArrows[2] = false;
+  if (keyCode === RIGHT_ARROW) activeArrows[3] = false;
+}
+
+function checkHit(index) {
+  let hit = false;
+  for (let note of notes) {
+    if (note.arrowIndex === index && note.y > height - 160 && note.y < height - 40) {
       score += 100;
-      notes[hitNoteIndex].pressed = true;
-      notes.splice(hitNoteIndex, 1);
-    } else if (arrowIndex !== undefined && (hitNoteIndex === -1 || (hitNoteIndex !== -1 && notes[hitNoteIndex].pressed))) {
-      score -= 50;
-    }
-  }
-}
-
-
-function drawScore() {
-  fill(255);
-  textSize(32);
-  text(`Score: ${score}`, width / 2, 40);
-}
-
-
-
-function drawGame() {
-  background(0);
-  drawArrows();
-  drawScore();
-
-  fft.analyze();
-
-  generateNotes();
-
-  for (let i = notes.length - 1; i >= 0; i--) {
-    const note = notes[i];
-    note.update();
-    note.display();
-
-    if (note.missed()) {
-      score -= 50;
       note.pressed = true;
+      hit = true;
+      for (let i = 0; i < 8; i++) particles.push(new Particle(note.x, note.y));
+      break;
     }
-
-    if (note.offScreen() || note.pressed) {
-      notes.splice(i, 1);
-    }
   }
-}
-
-function generateNotes() {
-  let currentTime = millis() - gameStartTime - noteTravelTime;
-
-  if (currentTime - lastNoteTime >= 200) {
-    let bass = fft.getEnergy("bass");
-    let mid = fft.getEnergy("mid");
-    let treble = fft.getEnergy("treble");
-    let lowMid = fft.getEnergy("lowMid");
-    let highMid = fft.getEnergy("highMid");
-
-    let direction = round(random(0, 3));
-
-    switch (direction) {
-      case 0:
-        if (bass > 230) {
-          notes.push(new Arrow("LEFT"));
-        }
-        break;
-      case 1:
-        if (mid > 225) {
-          notes.push(new Arrow("UP"));
-        }
-        break;
-      case 2:
-        if (lowMid > 100 && treble > 110) {
-          notes.push(new Arrow("DOWN"));
-        }
-        break;
-      case 3:
-        if (highMid > 120 && bass > 100) {
-          notes.push(new Arrow("RIGHT"));
-        }
-        break;
-    }
-
-    lastNoteTime = currentTime;
-  }
-}
-
-function drawArrow(x, y, rotation, colorVal) {
-  // left
-  if (rotation == 0) {
-    fill(255)
-    rect(x, y, 55, 25);
-    triangle(x - 55, y, x - 20, y - 34, x - 20, y + 34);
-    rectMode(CENTER);
-    noStroke();
-    fill(255);
-    rect(x, y, 50, 20);
-    triangle(x - 52, y, x - 22, y - 29, x - 22, y + 29);
-    // creates inner black arrow
-    fill(255);
-    rect(x - 5, y, 50, 8)
-    triangle(x - 42, y, x - 28, y + 15, x - 28, y - 15);
-  }
-  // up
-  else if (rotation == 1) {
-    fill(255)
-    rect(x, y, 25, 55);
-    triangle(x - 35, y - 18, x, y - 53, x + 35, y - 18);
-    rectMode(CENTER);
-    noStroke();
-    fill(255);
-    rect(x, y, 20, 50);
-    triangle(x - 30, y - 20, x, y - 50, x + 30, y - 20);
-    fill(255);
-    rect(x, y - 5, 8, 50);
-    triangle(x - 15, y - 25, x, y - 40, x + 15, y - 25);
-  }
-  // down
-  else if (rotation == 2) {
-    fill(255)
-    rect(x, y, 25, 55);
-    triangle(x - 35, y + 18, x, y + 53, x + 35, y + 18);
-    rectMode(CENTER);
-    noStroke();
-    fill(255);
-    rect(x, y, 20, 50);
-    triangle(x - 30, y + 20, x, y + 50, x + 30, y + 20);
-    fill(255);
-    rect(x, y + 5, 8, 50);
-    triangle(x - 15, y + 25, x, y + 40, x + 15, y + 25);
-  }
-  // right
-  else if (rotation == 3) {
-    fill(255)
-    rect(x, y, 55, 25);
-    triangle(x + 55, y, x + 20, y - 34, x + 20, y + 34);
-    rectMode(CENTER);
-    noStroke();
-    fill(255);
-    rect(x, y, 50, 20);
-    triangle(x + 52, y, x + 22, y - 29, x + 22, y + 29);
-    fill(255);
-    rect(x + 5, y, 50, 8)
-    triangle(x + 42, y, x + 28, y + 15, x + 28, y - 15);
-  }
-}
-
-function drawArrows() {
-  const arrowSize = 60;
-  const yPos = height - 100;
-  const xOffset = width / 2 - 1.5 * arrowSize;
-
-  for (let i = 0; i < 4; i++) {
-    let x = xOffset + i * arrowSize;
-    let colorVal = activeArrows[i] ? color(255, 255, 255) : color(0, 0, 0);
-    drawArrow(x, yPos, i, colorVal);
-  }
+  if (!hit) score -= 50;
 }
 
 class Arrow {
-  constructor(direction) {
-    this.direction = direction;
-    this.y = 0;
-    this.speed = 5;
+  constructor(index) {
+    this.arrowIndex = index;
+    this.x = gameLeftMargin + index * arrowSpacing;
+    this.y = -50;
+    this.speed = 6;
     this.pressed = false;
-    const arrowSize = 60;
-    const xOffset = width / 2 - 1.5 * arrowSize;
-
-    switch (this.direction) {
-      case "LEFT":
-        this.x = xOffset;
-        this.arrowIndex = 0;
-        break;
-      case "UP":
-        this.x = xOffset + arrowSize;
-        this.arrowIndex = 1;
-        break;
-      case "DOWN":
-        this.x = xOffset + 2 * arrowSize;
-        this.arrowIndex = 2;
-        break;
-      case "RIGHT":
-        this.x = xOffset + 3 * arrowSize;
-        this.arrowIndex = 3;
-        break;
-    }
   }
+  update() { this.y += this.speed; }
+  display() { drawArrow(this.x, this.y, this.arrowIndex, 255); }
+  missed() { return this.y > height - 40 && !this.pressed; }
+}
 
-  update() {
-    this.y += this.speed;
+class Particle {
+  constructor(x, y) {
+    this.x = x; this.y = y;
+    this.vx = random(-4, 4);
+    this.vy = random(-4, 4);
+    this.alpha = 255;
   }
-
+  update() { this.x += this.vx; this.y += this.vy; this.alpha -= 15; }
   display() {
-    let rotation;
-    let colorVal = color(0);
-
-    switch (this.direction) {
-      case "LEFT":
-        rotation = 0;
-        colorVal = color(255, 0, 0);
-        break;
-      case "UP":
-        rotation = 1;
-        colorVal = color(0, 255, 0);
-        break;
-      case "DOWN":
-        rotation = 2;
-        colorVal = color(0, 0, 255);
-        break;
-      case "RIGHT":
-        rotation = 3;
-        colorVal = color(255, 255, 0);
-        break;
-    }
-
-    push();
-    translate(this.x, this.y);
-    drawArrow(0, 0, rotation, colorVal);
-    pop();
-  }
-
-  offScreen() {
-    return this.y > height;
-  }
-
-  removeIfHit() {
-    if (this.y >= height - 150 && this.y <= height - 50 && activeArrows[this.arrowIndex] && !this.pressed) {
-      this.pressed = true;
-      return true;
-    }
-    return false;
-  }
-
-  missed() {
-    return this.y > height - 50 && !this.pressed;
+    noStroke();
+    fill(255, this.alpha);
+    ellipse(this.x, this.y, 6);
   }
 }
-
-
-function keyReleased() {
-  let arrowIndex;
-
-  if (keyCode === LEFT_ARROW) {
-    arrowIndex = 0;
-  } else if (keyCode === UP_ARROW) {
-    arrowIndex = 1;
-  } else if (keyCode === DOWN_ARROW) {
-    arrowIndex = 2;
-  } else if (keyCode === RIGHT_ARROW) {
-    arrowIndex = 3;
-  }
-
-  if (arrowIndex !== undefined) {
-    activeArrows[arrowIndex] = false;
-  }
-}
-
