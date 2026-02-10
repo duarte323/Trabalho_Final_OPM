@@ -8,7 +8,6 @@ let gameStartTime;
 let score = 0;
 let activeArrows = [false, false, false, false];
 
-
 const gameLeftMargin = 150;
 const arrowSpacing = 90;
 
@@ -22,6 +21,7 @@ function setup() {
   createCanvas(1280, 800);
   rectMode(CENTER);
   fft = new p5.FFT(0.8, 64);
+
 }
 
 function draw() {
@@ -58,6 +58,7 @@ function drawMenu() {
 }
 
 function drawGame() {
+   
   drawTargetZone();
   drawScore();
 

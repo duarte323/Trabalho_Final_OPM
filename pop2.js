@@ -7,11 +7,8 @@ let lastNoteTime = 0;
 let gameStartTime;
 let score = 0;
 
-
-let activeP1 = [false, false, false, false]; // Setas
-let activeP2 = [false, false, false, false]; // WASD
-
-
+let activeP1 = [false, false, false, false];
+let activeP2 = [false, false, false, false];
 const marginSide = 100;
 const arrowSpacing = 80;
 
@@ -42,27 +39,27 @@ function drawMenu() {
     textAlign(CENTER, CENTER);
     textSize(42);
     text("RITMO DO MEDO: EQUIPA", width / 2, height / 2 - 80);
-    textSize(20);
-    text("JOGADOR 1 (Esquerda): SETAS", width / 2, height / 2);
-    text("JOGADOR 2 (Direita): W, A, S, D", width / 2, height / 2 + 30);
+    textSize(22);
+    text("JOGADOR 1 (Esquerda): W, A, S, D", width / 2, height / 2);
+    text("JOGADOR 2 (Direita): SETAS", width / 2, height / 2 + 30);
     textSize(32);
     text("Clica ENTER para começar", width / 2, height / 2 + 90);
     textSize(13);
-    text("Clica ESC para voltar ao menu", width / 2, height / 2 + 140);
+  text("Clica ESC para voltar ao menu", width / 2, height / 2 + 130);
 }
 
 function drawGame() {
-    drawTargetZone(marginSide, activeP1);
-    drawTargetZone(width - marginSide - (3 * arrowSpacing), activeP2);
-    drawScore();
 
+    drawTargetZone(marginSide, activeP1, ["A", "W", "S", "D"]);
+    drawTargetZone(width - marginSide - (3 * arrowSpacing), activeP2, ["←", "↑", "↓", "→"]);
+
+    drawScore();
     fft.analyze();
     generateNotes();
 
     for (let i = notes.length - 1; i >= 0; i--) {
         notes[i].update();
         notes[i].display();
-
         if (notes[i].missed()) {
             score -= 50;
             notes.splice(i, 1);
@@ -70,7 +67,6 @@ function drawGame() {
             notes.splice(i, 1);
         }
     }
-
     updateParticles();
 
     if (song.isLoaded() && !song.isPlaying() && millis() - gameStartTime > 5000) {
@@ -89,20 +85,33 @@ function generateNotes() {
     }
 }
 
-function drawTargetZone(startX, activeArray) {
+function drawTargetZone(startX, activeArray, labels) {
     const yPos = height - 100;
     for (let i = 0; i < 4; i++) {
         let x = startX + i * arrowSpacing;
         let opacity = activeArray[i] ? 255 : 80;
+
+
         noFill();
         stroke(255, opacity);
         strokeWeight(2);
         rect(x, yPos, 70, 70, 10);
+
+
         drawArrow(x, yPos, i, opacity);
+
+
+        push();
+        noStroke();
+        fill(255, 150);
+        textSize(18);
+        textAlign(CENTER);
+        text(labels[i], x, yPos + 60);
+        pop();
     }
 }
 
-function drawArrow(x, y, type = 255) {
+function drawArrow(x, y, type) {
     push();
     translate(x, y);
     fill(255);
@@ -137,21 +146,24 @@ function keyPressed() {
             state = gameState.MENU;
         }
     }
+
     if (keyCode === ESCAPE) {
         window.location.href = "index.html";
     }
-    if (state === gameState.GAME) {
-        // Jogador 1 (
-        if (keyCode === LEFT_ARROW) handleHit(0, "LEFT", activeP1);
-        if (keyCode === UP_ARROW) handleHit(1, "LEFT", activeP1);
-        if (keyCode === DOWN_ARROW) handleHit(2, "LEFT", activeP1);
-        if (keyCode === RIGHT_ARROW) handleHit(3, "LEFT", activeP1);
 
-        // Jogador 2 
-        if (keyCode === 65) handleHit(0, "RIGHT", activeP2); // A
-        if (keyCode === 87) handleHit(1, "RIGHT", activeP2); // W
-        if (keyCode === 83) handleHit(2, "RIGHT", activeP2); // S
-        if (keyCode === 68) handleHit(3, "RIGHT", activeP2); // D
+
+    if (state === gameState.GAME) {
+
+        if (keyCode === 65) handleHit(0, "LEFT", activeP1);
+        if (keyCode === 87) handleHit(1, "LEFT", activeP1);
+        if (keyCode === 83) handleHit(2, "LEFT", activeP1);
+        if (keyCode === 68) handleHit(3, "LEFT", activeP1);
+
+
+        if (keyCode === LEFT_ARROW) handleHit(0, "RIGHT", activeP2);
+        if (keyCode === UP_ARROW) handleHit(1, "RIGHT", activeP2);
+        if (keyCode === DOWN_ARROW) handleHit(2, "RIGHT", activeP2);
+        if (keyCode === RIGHT_ARROW) handleHit(3, "RIGHT", activeP2);
     }
 }
 
@@ -171,15 +183,15 @@ function handleHit(idx, side, activeArray) {
 }
 
 function keyReleased() {
-    if (keyCode === LEFT_ARROW) activeP1[0] = false;
-    if (keyCode === UP_ARROW) activeP1[1] = false;
-    if (keyCode === DOWN_ARROW) activeP1[2] = false;
-    if (keyCode === RIGHT_ARROW) activeP1[3] = false;
+    if (keyCode === 65) activeP1[0] = false;
+    if (keyCode === 87) activeP1[1] = false;
+    if (keyCode === 83) activeP1[2] = false;
+    if (keyCode === 68) activeP1[3] = false;
 
-    if (keyCode === 65) activeP2[0] = false; // A
-    if (keyCode === 87) activeP2[1] = false; // W
-    if (keyCode === 83) activeP2[2] = false; // S
-    if (keyCode === 68) activeP2[3] = false; // D
+    if (keyCode === LEFT_ARROW) activeP2[0] = false;
+    if (keyCode === UP_ARROW) activeP2[1] = false;
+    if (keyCode === DOWN_ARROW) activeP2[2] = false;
+    if (keyCode === RIGHT_ARROW) activeP2[3] = false;
 }
 
 class Arrow {
@@ -196,7 +208,6 @@ class Arrow {
     display() { drawArrow(this.x, this.y, this.arrowIndex, 255); }
     missed() { return this.y > height - 40 && !this.pressed; }
 }
-
 
 function updateParticles() {
     for (let i = particles.length - 1; i >= 0; i--) {
@@ -217,8 +228,9 @@ class Particle {
 }
 
 function drawEndSequence() {
-    fill(255); noStroke(); textAlign(CENTER, CENTER);
+    background(0);
+    fill(255); textAlign(CENTER, CENTER);
     textSize(42); text("FIM DE JOGO", width / 2, height / 2 - 50);
-    textSize(32); text("Score da Equipa: " + score, width / 2, height / 2 + 20);
-    textSize(20); text("Clica ENTER para voltar ao menu", width / 2, height / 2 + 100);
+    textSize(32); text("Equipa: " + score, width / 2, height / 2 + 20);
+    textSize(20); text("ENTER para Menu", width / 2, height / 2 + 100);
 }
