@@ -233,4 +233,7 @@ function drawEndSequence() {
     textSize(42); text("FIM DE JOGO", width / 2, height / 2 - 50);
     textSize(32); text("Equipa: " + score, width / 2, height / 2 + 20);
     textSize(20); text("ENTER para Menu", width / 2, height / 2 + 100);
+
+
 }
+

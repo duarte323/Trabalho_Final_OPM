@@ -58,7 +58,7 @@ function drawMenu() {
 }
 
 function drawGame() {
-   
+
   drawTargetZone();
   drawScore();
 
@@ -77,6 +77,9 @@ function drawGame() {
       notes.splice(i, 1);
     }
   }
+}
+
+
 
   //partic
   for (let i = particles.length - 1; i >= 0; i--) {
@@ -84,7 +87,7 @@ function drawGame() {
     particles[i].display();
     if (particles[i].alpha <= 0) particles.splice(i, 1);
   }
-}
+
 
 //gerar nots
 function generateNotes() {
@@ -229,3 +232,4 @@ class Particle {
     ellipse(this.x, this.y, 6);
   }
 }
+
