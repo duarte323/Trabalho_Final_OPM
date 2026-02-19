@@ -1,6 +1,6 @@
 const gameState = { MENU: 0, GAME: 1, END: 2 };
 let state = gameState.MENU;
-let song, fft, img;
+let song, fft;
 let notes = [];
 let particles = [];
 let lastNoteTime = 0;
@@ -33,7 +33,7 @@ function draw() {
 
   push();
   tint(255, imgAlpha);
-  loadImage(minhaImagem, width / 2 - 50, height / 2 - 50, 1000, 1000);
+  loadImage(minhaImagem, width / 2 - 50, height / 2 - 50, 100, 100);
   pop();
 
 
