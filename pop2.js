@@ -14,7 +14,7 @@ const arrowSpacing = 80;
 
 function preload() {
     song = loadSound("kemadj.mp3");
-    img = loadImage("Design sem nome.png");
+    img = loadImage("Design sem nome (1).png");
 }
 
 function setup() {
@@ -231,8 +231,8 @@ function drawEndSequence() {
     background(0);
     fill(255); textAlign(CENTER, CENTER);
     textSize(42); text("FIM DE JOGO", width / 2, height / 2 - 50);
-    textSize(32); text("Equipa: " + score, width / 2, height / 2 + 20);
-    textSize(20); text("ENTER para Menu", width / 2, height / 2 + 100);
+    textSize(32); text("Score da Equipa: " + score, width / 2, height / 2 + 20);
+    textSize(20); text("ENTER para recomeçar", width / 2, height / 2 + 100);
 
 
 }

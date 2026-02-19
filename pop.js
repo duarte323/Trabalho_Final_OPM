@@ -7,6 +7,10 @@ let lastNoteTime = 0;
 let gameStartTime;
 let score = 0;
 let activeArrows = [false, false, false, false];
+let combo = 0;
+let imgAlpha = 0;
+let minhaImagem;
+
 
 const gameLeftMargin = 150;
 const arrowSpacing = 90;
@@ -14,7 +18,7 @@ const arrowSpacing = 90;
 function preload() {
 
   song = loadSound("kemadj.mp3");
-  img = loadImage("Design sem nome.png");
+  minhaImagem = loadImage("Design sem nome.png");
 }
 
 function setup() {
@@ -26,6 +30,13 @@ function setup() {
 
 function draw() {
   background(0);
+
+  push();
+  tint(255, imgAlpha);
+  loadImage(minhaImagem, width / 2 - 50, height / 2 - 50, 1000, 1000);
+  pop();
+
+
 
   switch (state) {
     case gameState.MENU:
@@ -65,6 +76,7 @@ function drawGame() {
   fft.analyze();
   generateNotes();
 
+
   //-pont
   for (let i = notes.length - 1; i >= 0; i--) {
     notes[i].update();
@@ -79,14 +91,12 @@ function drawGame() {
   }
 }
 
-
-
-  //partic
-  for (let i = particles.length - 1; i >= 0; i--) {
-    particles[i].update();
-    particles[i].display();
-    if (particles[i].alpha <= 0) particles.splice(i, 1);
-  }
+//partic
+for (let i = particles.length - 1; i >= 0; i--) {
+  particles[i].update();
+  particles[i].display();
+  if (particles[i].alpha <= 0) particles.splice(i, 1);
+}
 
 
 //gerar nots
@@ -170,6 +180,10 @@ function keyPressed() {
   }
 
 
+
+
+
+
   if (state === gameState.GAME) {
     let idx = -1;
     if (keyCode === LEFT_ARROW) idx = 0;
@@ -191,10 +205,37 @@ function keyReleased() {
   if (keyCode === RIGHT_ARROW) activeArrows[3] = false;
 }
 
+
 function checkHit(index) {
   let hit = false;
   for (let note of notes) {
     if (note.arrowIndex === index && note.y > height - 160 && note.y < height - 40) {
+      score += 100;
+      combo++;
+      note.pressed = true;
+      hit = true;
+
+
+      if (combo % 10 === 0 && combo > 0) {
+        imgAlpha = min(imgAlpha + 51, 255);
+      }
+
+      for (let i = 0; i < 8; i++) particles.push(new Particle(note.x, note.y));
+      break;
+    }
+  }
+  if (!hit) {
+    score -= 50;
+    combo = 0;
+    imgAlpha = 0;
+  }
+}
+
+function handleHit(idx, side, activeArray) {
+  activeArray[idx] = true;
+  let hit = false;
+  for (let note of notes) {
+    if (note.side === side && note.arrowIndex === idx && note.y > height - 160 && note.y < height - 40) {
       score += 100;
       note.pressed = true;
       hit = true;
@@ -218,6 +259,8 @@ class Arrow {
   missed() { return this.y > height - 40 && !this.pressed; }
 }
 
+
+
 class Particle {
   constructor(x, y) {
     this.x = x; this.y = y;
@@ -233,3 +276,12 @@ class Particle {
   }
 }
 
+function drawEndSequence() {
+  background(0);
+  fill(255); textAlign(CENTER, CENTER);
+  textSize(42); text("FIM DE JOGO", width / 2, height / 2 - 50);
+  textSize(32); text("Equipa: " + score, width / 2, height / 2 + 20);
+  textSize(20); text("ENTER para Menu", width / 2, height / 2 + 100);
+
+
+}
