@@ -2,6 +2,7 @@
 
 let ecra = 0;
 
+
 function setup() {
   createCanvas(1280, 800);
 

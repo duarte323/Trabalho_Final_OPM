@@ -1,6 +1,15 @@
-body {
-    background-color: rgb(255, 255, 255);
-    text-align: center;
-    margin-top: 4%;
+html, body {
+  height: 100%;
+  margin: 0;
 }
 
+body {
+  display: flex;
+  justify-content: center; /* centro horizontal */
+  align-items: center;     /* centro vertical */
+  background: #000;
+}
+
+canvas {
+  display: block;
+}
