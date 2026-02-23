@@ -94,14 +94,6 @@ function drawScore() {
   textSize(32);
   text(`Score: ${score}`, gameLeftMargin - 40, 50);
 
-  textSize(22);
-  text(`Combo: ${combo}`, gameLeftMargin - 40, 90);
-
-
-  textSize(16);
-  const level = Math.round((revealAlpha / 255) * 100);
-  text(`Fundo: ${level}%`, gameLeftMargin - 40, 120);
-
   pop();
 }
 

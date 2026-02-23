@@ -174,14 +174,7 @@ function drawScore() {
     textSize(40);
     text(`TEAM SCORE: ${score}`, width / 2, 60);
 
-    textSize(22);
-    text(`TEAM COMBO: ${teamCombo}`, width / 2, 100);
 
-    textSize(16);
-    const level = Math.round((revealAlpha / 255) * 100);
-    text(`Fundo: ${level}%`, width / 2, 130);
-
-    pop();
 }
 
 
