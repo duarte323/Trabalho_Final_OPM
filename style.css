@@ -5,8 +5,8 @@ html, body {
 
 body {
   display: flex;
-  justify-content: center; /* centro horizontal */
-  align-items: center;     /* centro vertical */
+  justify-content: center; 
+  align-items: center; 
   background: #000;
 }
 
